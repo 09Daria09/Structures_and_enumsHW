@@ -80,8 +80,13 @@ namespace Structures_and_enumsHW
             public string HexadecimalSystem()
             {
                 int num2 = num;
-                string UI = num2.ToString();
-                int[] array = new int[UI.Length];
+                int size = 0;
+                for (int i = 0; num2 != 0; i++)
+                {
+                    num2 /= 16;
+                    size++;
+                }
+                int[] array = new int[size];
 
                 for (int i = 0; num != 0; i++)
                 {
@@ -130,62 +135,84 @@ namespace Structures_and_enumsHW
                 return new string(add);
             }
         }
-        struct RGB
+
+        public struct RgbColor
         {
-            static string decToHexa(int n)
+            private int red;
+            private int green;
+            private int blue;
+
+            public RgbColor(int red, int green, int blue)
             {
-                char[] hexaDeciNum = new char[2];
-                int i = 0;
-                while (n != 0)
+                this.red = red;
+                this.green = green;
+                this.blue = blue;
+            }
+
+            public string ToHex()
+            {
+                string hexRed = red.ToString("X2");
+                string hexGreen = green.ToString("X2");
+                string hexBlue = blue.ToString("X2");
+                return $"#{hexRed}{hexGreen}{hexBlue}";
+            }
+
+            public (double Hue, double Saturation, double Lightness) ToHsl()
+            {
+                double r = red / 255.0;
+                double g = green / 255.0;
+                double b = blue / 255.0;
+                double max = Math.Max(r, Math.Max(g, b));
+                double min = Math.Min(r, Math.Min(g, b));
+                double delta = max - min;
+                double hue = 0.0;
+                if (delta != 0.0)
                 {
-                    int temp = 0;
-                    temp = n % 16;
-                    if (temp < 10)
+                    if (max == r)
                     {
-                        hexaDeciNum[i] = (char)(temp + 48);
-                        i++;
+                        hue = ((g - b) / delta) % 6.0;
+                    }
+                    else if (max == g)
+                    {
+                        hue = ((b - r) / delta) + 2.0;
                     }
                     else
                     {
-                        hexaDeciNum[i] = (char)(temp + 55);
-                        i++;
+                        hue = ((r - g) / delta) + 4.0;
                     }
-                    n = n / 16;
+                    hue *= 60.0;
+                    if (hue < 0.0)
+                    {
+                        hue += 360.0;
+                    }
                 }
-                string hexCode = "";
-
-                if (i == 2)
+                double lightness = (max + min) / 2.0;
+                double saturation = 0.0;
+                if (delta != 0.0)
                 {
-                    hexCode += hexaDeciNum[0];
-                    hexCode += hexaDeciNum[1];
+                    saturation = delta / (1.0 - Math.Abs(2.0 * lightness - 1.0));
                 }
-                else if (i == 1)
-                {
-                    hexCode = "0";
-                    hexCode += hexaDeciNum[0];
-                }
-                else if (i == 0)
-                    hexCode = "00";
-                return hexCode;
+                return (hue, saturation, lightness);
             }
-            public string convertRGBtoHex(int R, int G, int B)
+
+            public (double Cyan, double Magenta, double Yellow, double Black) ToCmyk()
             {
-                if ((R >= 0 && R <= 255) &&
-                    (G >= 0 && G <= 255) &&
-                    (B >= 0 && B <= 255))
-                {
-                    string hexCode = "#";
-                    hexCode += decToHexa(R);
-                    hexCode += decToHexa(G);
-                    hexCode += decToHexa(B);
+                double r = red / 255.0;
+                double g = green / 255.0;
+                double b = blue / 255.0;
+                double k = 1.0 - Math.Max(r, Math.Max(g, b));
+                double c = (1.0 - r - k) / (1.0 - k);
+                double m = (1.0 - g - k) / (1.0 - k);
+                double y = (1.0 - b - k) / (1.0 - k);
+                return (c, m, y, k);
+            }
 
-                    return hexCode;
-                }
-
-                else
-                    return "-1";
+            public override string ToString()
+            {
+                return $"RGB ({red}, {green}, {blue})";
             }
         }
+                
         static void Main(string[] args)
         {
             //Vector vectorA = new Vector(3, 5, 23);
@@ -195,19 +222,19 @@ namespace Structures_and_enumsHW
             //Console.WriteLine(vectorA.Subtraction(vectorB));
             //Console.WriteLine(vectorA.MultiNum(4));
 
-            //ProgrammerCalculator programmer = new ProgrammerCalculator(5675);
+            //ProgrammerCalculator programmer = new ProgrammerCalculator(56784);
             //Console.WriteLine(programmer.BinarySystem());
             //Console.WriteLine(programmer.OctalSystem());
             //Console.WriteLine(programmer.HexadecimalSystem());
 
-            RGB gFG = new RGB();
+            RgbColor rgb = new RgbColor(123, 322, 11);
+            Console.WriteLine(rgb.ToHex());
 
-            int R = 255, G = 255, B = 255;
-            Console.Write(gFG.convertRGBtoHex(R, G, B) + "\n");
+            RgbColor rgb1 = new RgbColor(123, 322, 11);
+            Console.WriteLine(rgb1.ToCmyk());
 
-
-
-
+            RgbColor rgb2 = new RgbColor(123, 322, 11);
+            Console.WriteLine(rgb2.ToHsl());
         }
     }
 }
